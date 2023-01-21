@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ),
+        // home: MyOldHomePage(),
         home: MyHomePage(),
       ),
     );
@@ -71,6 +72,91 @@ class MyAppState extends ChangeNotifier {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [
+          SafeArea(
+            child: NavigationRail(
+              extended: false,
+              destinations: [
+                NavigationRailDestination(
+                  icon: Icon(Icons.home),
+                  label: Text('Home'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.favorite),
+                  label: Text('Favorite'),
+                ),
+              ],
+              selectedIndex: 0,
+              onDestinationSelected: (value) {
+                print('selected: $value');
+              },
+            ),
+          ),
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: GeneratorPage(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class GeneratorPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    var pair = appState.current;
+
+    IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
+
+    var nextButton = MyButton(
+      nameTextLabel: 'Next',
+      onPressed: () {
+        appState.getNext();
+      },
+    );
+
+    var favoriteButton = ElevatedButton.icon(
+      onPressed: () {
+        appState.toggleFavorite();
+      },
+      icon: Icon(icon),
+      label: Text('Favorite'),
+    );
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BigCard(pair: pair),
+          SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              favoriteButton,
+              SizedBox(width: 10),
+              nextButton,
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MyOldHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
     IconData icon;
@@ -80,14 +166,14 @@ class MyHomePage extends StatelessWidget {
       icon = Icons.favorite_border;
     }
 
-    var NextButton = MyButton(
+    var nextButton = MyButton(
       nameTextLabel: 'Next',
       onPressed: () {
         appState.getNext();
       },
     );
 
-    var FavoriteButton = ElevatedButton.icon(
+    var favoriteButton = ElevatedButton.icon(
       onPressed: () {
         appState.toggleFavorite();
       },
@@ -105,9 +191,9 @@ class MyHomePage extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FavoriteButton,
+                favoriteButton,
                 SizedBox(width: 15),
-                NextButton,
+                nextButton,
               ],
             )
           ],
